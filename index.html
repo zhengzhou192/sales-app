@@ -1,0 +1,617 @@
+﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>销司通 - 订单与催款管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans SC',sans-serif;background:#F4F1EC;color:#1A1A2E;height:100vh;overflow:hidden}
+#login{display:flex;align-items:center;justify-content:center;height:100vh;background:#F4F1EC}
+.login-box{background:#fff;border-radius:16px;padding:40px;width:360px;border:1px solid #E5DDD3;box-shadow:0 8px 40px rgba(28,43,58,0.14)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-icon{width:52px;height:52px;background:linear-gradient(135deg,#C5973A,#E8B86D);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:24px;color:#fff;font-weight:700;margin-bottom:12px}
+.login-title{font-size:24px;font-weight:700;color:#1A1A2E}
+.login-sub{font-size:13px;color:#6B7280;margin-top:6px}
+.login-btn{width:100%;padding:14px;margin-bottom:10px;background:#F4F1EC;border:1.5px solid #E5DDD3;border-radius:10px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:12px;transition:all 0.2s;font-family:'Noto Sans SC',sans-serif}
+.login-btn:hover{border-color:#C5973A;background:#FFF8F0}
+.login-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4A90D9,#7CB9E8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
+.login-name{font-weight:600;text-align:left;display:block}
+.login-role{font-size:12px;color:#6B7280}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#1C2B3A;display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:24px 20px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sidebar-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#C5973A,#E8B86D);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700}
+.sidebar-logo-text{font-size:18px;font-weight:700;color:#fff}
+.sidebar-logo-sub{font-size:10px;color:#A8B9CC;letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.sidebar-section-label{font-size:10px;font-weight:600;color:#4A5D72;text-transform:uppercase;letter-spacing:1.5px;padding:16px 8px 8px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;cursor:pointer;transition:all 0.2s;color:#A8B9CC;font-size:14px;font-weight:400}
+.nav-item:hover{background:#243447;color:#fff}
+.nav-item.active{background:#2D4059;color:#fff;font-weight:500}
+.nav-icon{font-size:18px;width:22px;text-align:center}
+.nav-badge{margin-left:auto;background:#C5973A;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.sidebar-footer{padding:16px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.sidebar-user{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer}
+.sidebar-user:hover{background:#243447}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#4A90D9,#7CB9E8);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:600}
+.user-info{flex:1}
+.user-name{font-size:13px;font-weight:500;color:#fff}
+.user-role{font-size:11px;color:#A8B9CC}
+.main{margin-left:240px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.header{height:64px;background:#fff;border-bottom:1px solid #E5DDD3;display:flex;align-items:center;padding:0 28px;gap:16px;z-index:50}
+.header-title{font-size:16px;font-weight:600;color:#1A1A2E;flex:1}
+.header-date{font-size:13px;color:#6B7280}
+.header-actions{display:flex;gap:10px}
+.header-btn{padding:8px 16px;border-radius:10px;border:1.5px solid #E5DDD3;background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:#1A1A2E;font-family:'Noto Sans SC',sans-serif;transition:all 0.2s}
+.header-btn:hover{border-color:#C5973A;color:#C5973A}
+.header-btn.primary{background:#C5973A;border-color:#C5973A;color:#fff}
+.content{flex:1;overflow-y:auto;padding:24px 28px}
+.page{display:none}
+.page.active{display:block}
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:22px;font-weight:700}
+.page-subtitle{font-size:13px;color:#6B7280;margin-top:4px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:#fff;border-radius:16px;padding:22px 24px;border:1px solid #E5DDD3;box-shadow:0 2px 16px rgba(28,43,58,0.08);position:relative;overflow:hidden;transition:transform 0.2s}
+.kpi-card:hover{transform:translateY(-2px)}
+.kpi-card::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:0 0 0 100%;opacity:0.05}
+.kpi-card.gold::after{background:#C5973A}
+.kpi-card.blue::after{background:#2563EB}
+.kpi-card.green::after{background:#059669}
+.kpi-card.red::after{background:#DC2626}
+.kpi-label{font-size:12px;color:#6B7280;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.kpi-value{font-size:32px;font-weight:700;line-height:1;margin-bottom:6px}
+.kpi-change{font-size:12px;font-weight:500}
+.kpi-change.up{color:#059669}
+.kpi-change.down{color:#DC2626}
+.kpi-icon{position:absolute;right:20px;top:20px;font-size:28px;opacity:0.12}
+.charts-row{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:24px}
+.card{background:#fff;border-radius:16px;border:1px solid #E5DDD3;box-shadow:0 2px 16px rgba(28,43,58,0.08);overflow:hidden}
+.card-header{padding:18px 22px 14px;border-bottom:1px solid #E5DDD3;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600}
+.card-body{padding:20px 22px}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:140px}
+.bar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bar-fill{width:100%;border-radius:6px 6px 0 0;transition:height 0.8s;min-height:4px;cursor:pointer;position:relative}
+.bar-label{font-size:10px;color:#6B7280;margin-top:4px}
+.mini-list{display:flex;flex-direction:column;gap:8px}
+.mini-order{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:#F4F1EC;cursor:pointer;transition:background 0.2s}
+.mini-order:hover{background:#EDE9E1}
+.mini-order-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.mini-order-info{flex:1;min-width:0}
+.mini-order-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-order-sub{font-size:11px;color:#6B7280;margin-top:2px}
+.mini-order-amount{font-size:14px;font-weight:700;white-space:nowrap}
+.tag{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.tag-paid{background:#ECFDF5;color:#059669}
+.tag-pending{background:#FFFBEB;color:#D97706}
+.tag-overdue{background:#FEF2F2;color:#DC2626}
+.tab-bar{display:flex;gap:4px;background:#F4F1EC;border-radius:10px;padding:4px;margin-bottom:20px;width:fit-content}
+.tab-item{padding:8px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;color:#6B7280;border:none;background:transparent;font-family:'Noto Sans SC',sans-serif}
+.tab-item.active{background:#fff;color:#1A1A2E;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.tab-count{display:inline-flex;align-items:center;justify-content:center;background:#E5DDD3;color:#6B7280;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;margin-left:6px}
+.tab-item.active .tab-count{background:#F5E6C8;color:#C5973A}
+.search-bar{margin-bottom:20px}
+.search-input{flex:1;border:none;outline:none;font-size:14px;font-family:'Noto Sans SC',sans-serif;color:#1A1A2E;background:transparent;width:100%}
+.search-input-wrap{flex:1;display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #E5DDD3;border-radius:10px;padding:10px 16px;transition:border-color 0.2s}
+.search-input-wrap:focus-within{border-color:#C5973A}
+.order-table{width:100%;border-collapse:collapse}
+.order-table th{padding:12px 18px;text-align:left;font-size:11px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.8px;background:#FAFAF8;border-bottom:1px solid #E5DDD3}
+.order-table td{padding:14px 18px;border-bottom:1px solid #F5F0E8;font-size:13px;vertical-align:middle}
+.order-table tr:last-child td{border-bottom:none}
+.order-table tr:hover td{background:#FAFAF8}
+.order-amount{font-weight:700;font-size:14px}
+.order-actions{display:flex;gap:8px;align-items:center}
+.action-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans SC',sans-serif;transition:all 0.2s}
+.action-btn.send{background:#C5973A;color:#fff}
+.action-btn.send:hover{background:#B8872E}
+.action-btn.sent{background:#ECFDF5;color:#059669;cursor:default}
+.pay-check{width:20px;height:20px;border-radius:5px;border:2px solid #C5973A;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0}
+.pay-check.checked{background:#C5973A;border-color:#C5973A;color:#fff;font-size:11px;font-weight:700}
+.pay-check:hover:not(.checked){border-color:#B8872E;background:#FFF8F0}
+.reminder-layout{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
+.reminder-form{background:#fff;border-radius:16px;border:1px solid #E5DDD3;box-shadow:0 2px 16px rgba(28,43,58,0.08);padding:28px}
+.form-section-title{font-size:15px;font-weight:700;margin-bottom:20px}
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:12px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
+.form-input,.form-select,.form-textarea{width:100%;padding:11px 14px;border:1.5px solid #E5DDD3;border-radius:10px;font-size:14px;font-family:'Noto Sans SC',sans-serif;color:#1A1A2E;background:#fff;transition:border-color 0.2s;outline:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:#C5973A}
+.form-textarea{resize:vertical;min-height:100px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.order-card{background:#F5E6C8;border:1.5px solid #E8D4A8;border-radius:10px;padding:16px;margin-bottom:20px;display:none}
+.order-card.show{display:block}
+.so-title{font-size:13px;font-weight:600;color:#C5973A;margin-bottom:6px}
+.so-row{display:flex;justify-content:space-between;font-size:12px;color:#8B7355;margin-top:4px}
+.so-amount{font-size:20px;font-weight:700;color:#C5973A;margin-top:8px}
+.no-selection{text-align:center;padding:40px 20px;color:#6B7280;font-size:13px}
+.preview-phone{background:#1A1A1A;border-radius:36px;padding:12px;box-shadow:0 8px 40px rgba(28,43,58,0.14);position:sticky;top:24px}
+.preview-screen{background:#fff;border-radius:26px;overflow:hidden;min-height:560px;display:flex;flex-direction:column}
+.preview-header-bar{background:linear-gradient(135deg,#1C2B3A,#2D4059);padding:20px 18px 50px;position:relative}
+.ph-back{font-size:18px;color:rgba(255,255,255,0.8);cursor:pointer}
+.ph-title{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);color:#fff;font-size:15px;font-weight:600}
+.preview-msg-list{padding:0 12px 16px;margin-top:-30px;position:relative;z-index:1;flex:1;overflow-y:auto}
+.preview-msg-date{text-align:center;font-size:11px;color:#B0AA9F;margin:12px 0 8px}
+.preview-msg{background:#E9E9E9;border-radius:12px 12px 12px 2px;padding:10px 14px;font-size:13px;max-width:80%;line-height:1.5;margin-bottom:8px}
+.preview-card{background:linear-gradient(145deg,#FFFDF5,#FFF8E8);border:1.5px solid #E8D4A8;border-radius:12px;padding:14px;margin:10px 0;max-width:80%;box-shadow:0 2px 8px rgba(197,151,58,0.12)}
+.pc-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.pc-logo{width:28px;height:28px;background:linear-gradient(135deg,#C5973A,#E8B86D);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700}
+.pc-company{font-size:12px;font-weight:700;color:#C5973A}
+.pc-subtitle{font-size:10px;color:#B09050}
+.pc-row{display:flex;justify-content:space-between;padding:6px 0;border-top:1px dashed #E8D4A8;font-size:12px}
+.pc-row-label{color:#8B7355}
+.pc-row-value{font-weight:600}
+.pc-row-value.highlight{color:#C5973A;font-size:14px}
+.pc-footer{margin-top:10px;padding:8px 12px;background:linear-gradient(135deg,#C5973A,#D4A84A);border-radius:8px;color:#fff;font-size:12px;font-weight:700;text-align:center}
+.preview-sender-msg{background:#B8E086;border-radius:12px 12px 2px 12px;padding:10px 14px;font-size:13px;max-width:70%;margin-left:auto;margin-bottom:8px;display:none}
+.history-list{display:flex;flex-direction:column;gap:12px}
+.history-item{background:#fff;border-radius:16px;border:1px solid #E5DDD3;box-shadow:0 2px 16px rgba(28,43,58,0.08);padding:18px 20px;display:flex;align-items:center;gap:16px;transition:transform 0.2s}
+.history-item:hover{transform:translateX(4px)}
+.history-icon{width:44px;height:44px;border-radius:12px;background:#ECFDF5;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.history-info{flex:1;min-width:0}
+.history-title{font-size:14px;font-weight:600}
+.history-sub{font-size:12px;color:#6B7280;margin-top:3px}
+.history-time{font-size:11px;color:#6B7280;white-space:nowrap}
+.modal-overlay{position:fixed;inset:0;background:rgba(28,43,58,0.5);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:16px;padding:32px;width:420px;max-width:90vw;box-shadow:0 8px 40px rgba(28,43,58,0.14);transform:scale(0.9) translateY(20px);transition:transform 0.3s}
+.modal-overlay.show .modal{transform:scale(1) translateY(0)}
+.modal-icon{width:60px;height:60px;border-radius:50%;background:#F5E6C8;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px}
+.modal-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:8px}
+.modal-desc{font-size:13px;color:#6B7280;text-align:center;line-height:1.6;margin-bottom:24px}
+.modal-actions{display:flex;gap:12px;justify-content:center}
+.modal-btn{padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans SC',sans-serif;transition:all 0.2s}
+.modal-btn.cancel{background:#F4F1EC;color:#6B7280}
+.modal-btn.cancel:hover{background:#E5DDD3}
+.modal-btn.confirm{background:#C5973A;color:#fff}
+.modal-btn.confirm:hover{background:#B8872E}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1C2B3A;color:#fff;padding:14px 28px;border-radius:10px;font-size:14px;font-weight:500;z-index:2000;transition:transform 0.4s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.kpi-card:nth-child(1){animation:fadeInUp 0.5s ease 0.05s both}
+.kpi-card:nth-child(2){animation:fadeInUp 0.5s ease 0.1s both}
+.kpi-card:nth-child(3){animation:fadeInUp 0.5s ease 0.15s both}
+.kpi-card:nth-child(4){animation:fadeInUp 0.5s ease 0.2s both}
+::-webkit-scrollbar{width:5px}
+</style>
+</head>
+<body>
+<div id="login">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-icon">S</div>
+      <div class="login-title">销司通</div>
+      <div class="login-sub">请选择登录身份</div>
+    </div>
+    <div id="login-buttons"></div>
+  </div>
+</div>
+<div id="main" style="display:none">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">S</div>
+      <div><div class="sidebar-logo-text">销司通</div><div class="sidebar-logo-sub">Sales Manager</div></div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section-label">工作台</div>
+      <a class="nav-item active" href="#" onclick="navigate('dashboard');return false"><span class="nav-icon">T</span> 今日看板</a>
+      <a class="nav-item" href="#" onclick="navigate('orders');return false"><span class="nav-icon">O</span> 订单列表 <span class="nav-badge" id="badge-pending">0</span></a>
+      <a class="nav-item" href="#" onclick="navigate('reminder');return false"><span class="nav-icon">R</span> 催款单</a>
+      <a class="nav-item" href="#" onclick="navigate('history');return false"><span class="nav-icon">H</span> 发送记录</a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="logout()">
+        <div class="user-avatar" id="user-avatar">李</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">李业务</div>
+          <div class="user-role" id="user-role">业务员</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="main">
+    <header class="header">
+      <div class="header-title" id="current-page-title">今日看板</div>
+      <div class="header-date" id="header-date"></div>
+      <div class="header-actions">
+        <button class="header-btn primary" onclick="navigate('reminder')">新建催款单</button>
+      </div>
+    </header>
+    <div class="content">
+      <div id="page-dashboard" class="page active">
+        <div class="page-header">
+          <div><div class="page-title">今日成交概览</div><div class="page-subtitle">实时追踪你的订单和催款情况</div></div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card gold"><div class="kpi-label">今日订单</div><div class="kpi-value" id="kpi-orders">0</div><div class="kpi-change up">较昨日</div><div class="kpi-icon">D</div></div>
+          <div class="kpi-card blue"><div class="kpi-label">成交总额</div><div class="kpi-value" id="kpi-total">¥0</div><div class="kpi-change up">较昨日</div><div class="kpi-icon">M</div></div>
+          <div class="kpi-card green"><div class="kpi-label">已回款</div><div class="kpi-value" id="kpi-paid">¥0</div><div class="kpi-change up">已到账</div><div class="kpi-icon">P</div></div>
+          <div class="kpi-card red"><div class="kpi-label">待催金额</div><div class="kpi-value" id="kpi-pending">¥0</div><div class="kpi-change down">需跟进</div><div class="kpi-icon">W</div></div>
+        </div>
+        <div class="charts-row">
+          <div class="card"><div class="card-header"><div class="card-title">本周成交趋势</div><span style="font-size:12px;color:#6B7280">单位：万元</span></div><div class="card-body"><div class="bar-chart" id="week-chart"></div></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">最新订单</div><a href="#" onclick="navigate('orders');return false" style="font-size:12px;color:#C5973A;text-decoration:none;font-weight:500">查看全部 ></a></div><div class="card-body" style="padding:14px 16px" id="recent-orders"></div></div>
+        </div>
+      </div>
+      <div id="page-orders" class="page">
+        <div class="page-header"><div><div class="page-title">订单列表</div><div class="page-subtitle">管理所有订单，支持按状态筛选和搜索</div></div></div>
+        <div class="tab-bar">
+          <button class="tab-item active" data-tab="all" onclick="switchTab('all')">全部 <span class="tab-count" id="count-all">0</span></button>
+          <button class="tab-item" data-tab="paid" onclick="switchTab('paid')">已收款 <span class="tab-count" id="count-paid">0</span></button>
+          <button class="tab-item" data-tab="pending" onclick="switchTab('pending')">待收款 <span class="tab-count" id="count-pending">0</span></button>
+          <button class="tab-item" data-tab="overdue" onclick="switchTab('overdue')">已逾期 <span class="tab-count" id="count-overdue">0</span></button>
+        </div>
+        <div class="search-bar"><div class="search-input-wrap"><input class="search-input" id="order-search" placeholder="搜索客户名称或订单号..." oninput="searchOrders()"></div></div>
+        <div class="card" style="overflow:hidden">
+          <table class="order-table">
+            <thead><tr><th>客户</th><th>订单号</th><th>日期</th><th>金额</th><th>收款</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="orders-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="page-reminder" class="page">
+        <div class="page-header"><div><div class="page-title">发送催款单</div><div class="page-subtitle">选择订单并填写收款截止时间，生成微信催款卡片</div></div></div>
+        <div class="reminder-layout">
+          <div class="reminder-form">
+            <div class="form-section-title">步骤一：选择订单</div>
+            <div class="form-group"><label class="form-label">待催款订单</label><select class="form-select" id="reminder-order" onchange="onOrderSelect()"><option value="">— 请选择订单 —</option></select></div>
+            <div id="order-info" class="no-selection">请先从上方选择一个订单</div>
+            <div id="order-card" class="order-card"><div class="so-title">已选订单</div><div class="so-row"><span>客户名称</span><span id="so-customer"></span></div><div class="so-row"><span>订单号</span><span id="so-id"></span></div><div class="so-row"><span>订单金额</span><span id="so-amount"></span></div></div>
+            <div class="form-section-title">步骤二：填写催款信息</div>
+            <div class="form-row"><div class="form-group"><label class="form-label">客户名称</label><input class="form-input" id="reminder-customer" placeholder="自动填充"></div><div class="form-group"><label class="form-label">联系电话</label><input class="form-input" id="reminder-phone" placeholder="可选填"></div></div>
+            <div class="form-group"><label class="form-label">收款截止时间 <span style="color:#DC2626">*必填</span></label><input class="form-input" type="date" id="reminder-deadline"></div>
+            <div class="form-group"><label class="form-label">催款留言（选填）</label><textarea class="form-textarea" id="reminder-message" placeholder="如：您好，麻烦尽快安排付款，谢谢！"></textarea></div>
+            <div class="form-group"><label class="form-label">业务员签名</label><input class="form-input" id="reminder-signer" placeholder="您的姓名"></div>
+            <div style="display:flex;gap:12px;margin-top:4px">
+              <button class="action-btn" style="background:#F4F1EC;border:1px solid #E5DDD3;color:#6B7280" onclick="previewReminder()">预览催款单</button>
+              <button class="action-btn send" onclick="confirmSend()">确认发送微信</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#6B7280;margin-bottom:12px">微信预览效果</div>
+            <div class="preview-phone">
+              <div class="preview-screen">
+                <div class="preview-header-bar"><div class="ph-back">&lt;</div><div class="ph-title">催款单</div></div>
+                <div class="preview-msg-list">
+                  <div class="preview-msg-date" id="pv-date">今天</div>
+                  <div class="preview-msg" id="pv-body">您好，请查看您的催款单：</div>
+                  <div class="preview-card">
+                    <div class="pc-header"><div class="pc-logo">S</div><div><div class="pc-company">销司通</div><div class="pc-subtitle">专业订单管理系统</div></div></div>
+                    <div class="pc-row"><span class="pc-row-label">客户名称</span><span class="pc-row-value" id="pv-customer">请先选择订单</span></div>
+                    <div class="pc-row"><span class="pc-row-label">订单号</span><span class="pc-row-value" id="pv-id"></span></div>
+                    <div class="pc-row"><span class="pc-row-label">订单金额</span><span class="pc-row-value highlight" id="pv-amount"></span></div>
+                    <div class="pc-row"><span class="pc-row-label">截止时间</span><span class="pc-row-value highlight" id="pv-deadline"></span></div>
+                    <div class="pc-footer">请尽快安排付款</div>
+                  </div>
+                </div>
+                <div class="preview-sender-msg" id="pv-msg"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="page-history" class="page">
+        <div class="page-header"><div><div class="page-title">发送记录</div><div class="page-subtitle">追踪每条催款单的发送记录</div></div></div>
+        <div class="history-list" id="history-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon">R</div>
+    <div class="modal-title" id="modal-title">确认发送</div>
+    <div class="modal-desc" id="modal-desc">确认吗？</div>
+    <div class="modal-actions"><button class="modal-btn cancel" onclick="closeModal()">取消</button><button class="modal-btn confirm" onclick="doSend()">确认发送</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+<script>
+var USERS=[
+  {id:'liyw',name:'李业务',role:'业务员',avatar:'李'},
+  {id:'zhangsan',name:'张经理',role:'经理',avatar:'张'}
+];
+var ORDERS=[
+  {id:'ORD2025040501',customer:'华盛贸易有限公司',amount:58000,date:'2026-04-05',status:'pending',paid:0,deadline:'2026-04-08',salesman:'liyw'},
+  {id:'ORD2025040502',customer:'京东网络技术有限公司',amount:125000,date:'2026-04-05',status:'paid',paid:125000,deadline:'2026-04-05',salesman:'liyw'},
+  {id:'ORD2025040503',customer:'海南康贸易有限公司',amount:35000,date:'2026-04-05',status:'pending',paid:0,deadline:'2026-04-07',salesman:'liyw'},
+  {id:'ORD2025040504',customer:'中科集团科技股份有限公司',amount:200000,date:'2026-04-04',status:'overdue',paid:0,deadline:'2026-04-03',salesman:'zhangsan'},
+  {id:'ORD2025040505',customer:'华杰实业投资集团',amount:80000,date:'2026-04-04',status:'paid',paid:80000,deadline:'2026-04-06',salesman:'zhangsan'},
+  {id:'ORD2025040506',customer:'科技创新科技有限公司',amount:42000,date:'2026-04-03',status:'paid',paid:42000,deadline:'2026-04-05',salesman:'liyw'},
+  {id:'ORD2025040507',customer:'华南贸易有限公司',amount:68000,date:'2026-04-03',status:'pending',paid:0,deadline:'2026-04-06',salesman:'zhangsan'},
+  {id:'ORD2025040508',customer:'华东进出口公司',amount:95000,date:'2026-04-02',status:'overdue',paid:0,deadline:'2026-04-01',salesman:'liyw'}
+];
+var HISTORY=[];
+var CURRENT_USER=null;
+var currentTab='all';
+function fmt(n){return '¥'+n.toLocaleString()}
+function fmtDate(s){
+  if(!s)return '';
+  var d=new Date(s);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function myOrders(){return ORDERS.filter(function(o){return o.salesman===CURRENT_USER.id})}
+function init(){
+  var saved=localStorage.getItem('currentUser');
+  if(!saved||!USERS.find(function(u){return u.id===saved})){
+    showLogin();
+  }else{
+    CURRENT_USER=USERS.find(function(u){return u.id===saved});
+    showApp();
+  }
+}
+function showLogin(){
+  document.getElementById('login').style.display='flex';
+  document.getElementById('main').style.display='none';
+  var btns=document.getElementById('login-buttons');
+  btns.innerHTML='';
+  USERS.forEach(function(u){
+    var btn=document.createElement('button');
+    btn.className='login-btn';
+    btn.innerHTML='<span class="login-avatar">'+u.avatar+'</span><span><span class="login-name">'+u.name+'</span><span class="login-role">'+u.role+'</span></span>';
+    btn.onclick=function(){loginAs(u.id)};
+    btns.appendChild(btn);
+  });
+}
+function loginAs(userId){
+  CURRENT_USER=USERS.find(function(u){return u.id===userId});
+  localStorage.setItem('currentUser',userId);
+  showApp();
+}
+function logout(){
+  localStorage.removeItem('currentUser');
+  CURRENT_USER=null;
+  showLogin();
+}
+function showApp(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('main').style.display='block';
+  document.getElementById('user-avatar').textContent=CURRENT_USER.avatar;
+  document.getElementById('user-name').textContent=CURRENT_USER.name;
+  document.getElementById('user-role').textContent=CURRENT_USER.role;
+  document.getElementById('reminder-signer').value=CURRENT_USER.name;
+  document.getElementById('header-date').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  initDashboard();
+}
+function initDashboard(){
+  var today=myOrders().filter(function(o){return o.date==='2026-04-05'});
+  document.getElementById('kpi-orders').textContent=today.length;
+  document.getElementById('kpi-total').textContent=fmt(today.reduce(function(s,o){return s+o.amount},0));
+  document.getElementById('kpi-paid').textContent=fmt(myOrders().reduce(function(s,o){return s+o.paid},0));
+  var pending=myOrders().filter(function(o){return o.status!=='paid'});
+  document.getElementById('kpi-pending').textContent=fmt(pending.reduce(function(s,o){return s+(o.amount-o.paid)},0));
+  document.getElementById('badge-pending').textContent=pending.length;
+  renderWeekChart();
+  renderRecentOrders();
+}
+function renderWeekChart(){
+  var days=['一','二','三','四','五','六','日'];
+  var data=[2.5,3.8,1.2,4.5,3.0,5.8,1.2];
+  var max=Math.max.apply(null,data);
+  var el=document.getElementById('week-chart');
+  el.innerHTML='';
+  for(var i=0;i<days.length;i++){
+    var pct=(data[i]/max*100).toFixed(0);
+    var item=document.createElement('div');
+    item.className='bar-item';
+    var fill=document.createElement('div');
+    fill.className='bar-fill';
+    fill.style.background='#C5973A';
+    fill.style.height=pct+'%';
+    fill.setAttribute('data-val',fmt(data[i]*10000));
+    fill.title=fmt(data[i]*10000);
+    var lbl=document.createElement('div');
+    lbl.className='bar-label';
+    lbl.textContent=days[i];
+    item.appendChild(fill);
+    item.appendChild(lbl);
+    el.appendChild(item);
+  }
+}
+function renderRecentOrders(){
+  var el=document.getElementById('recent-orders');
+  var orders=myOrders().filter(function(o){return o.date==='2026-04-05'}).slice(0,3);
+  if(!orders.length){el.innerHTML='<div style="text-align:center;color:#6B7280;padding:20px;font-size:13px">暂无今日订单</div>';return}
+  el.innerHTML='';
+  orders.forEach(function(o){
+    var row=document.createElement('div');
+    row.className='mini-order';
+    row.style.cursor='pointer';
+    row.onclick=function(){navigate('orders')};
+    row.innerHTML='<div class="mini-order-icon" style="background:#F5E6C8;color:#C5973A">O</div>'+
+      '<div class="mini-order-info"><div class="mini-order-title">'+o.customer+'</div><div class="mini-order-sub" style="font-family:monospace;font-size:10px">'+o.id+'</div></div>'+
+      '<div class="mini-order-amount">'+fmt(o.amount)+'</div>';
+    el.appendChild(row);
+  });
+}
+function renderOrders(){
+  var rows=myOrders().filter(function(o){
+    return currentTab==='all'||o.status===currentTab;
+  });
+  var kw=document.getElementById('order-search').value.trim().toLowerCase();
+  if(kw)rows=rows.filter(function(o){return o.customer.toLowerCase().indexOf(kw)>-1||o.id.toLowerCase().indexOf(kw)>-1});
+  var tbody=document.getElementById('orders-tbody');
+  tbody.innerHTML='';
+  rows.forEach(function(o){
+    var isPaid=o.paid>=o.amount;
+    var checked=isPaid?'pay-check checked':'pay-check';
+    var statusLabel=o.status==='paid'?'已收款':o.status==='pending'?'待收款':'已逾期';
+    var statusClass='tag-'+o.status;
+    var hist=HISTORY.find(function(h){return h.orderId===o.id&&h.salesman===CURRENT_USER.id});
+    var actionBtn='';
+    if(hist){
+      actionBtn='<button class="action-btn sent">已发送</button>';
+    }else if(o.status==='paid'){
+      actionBtn='<button class="action-btn sent">已收款</button>';
+    }else{
+      actionBtn='<button class="action-btn send" onclick="goRemind(\''+o.id+'\')">'+(o.status==='overdue'?'紧急催款':'催款')+'</button>';
+    }
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td style="font-weight:600">'+o.customer+'</td>'+
+      '<td style="font-family:monospace;font-size:11px;color:#6B7280">'+o.id+'</td>'+
+      '<td>'+fmtDate(o.date)+'</td>'+
+      '<td class="order-amount">'+fmt(o.amount)+'</td>'+
+      '<td><div class="'+checked+'" id="pc-'+o.id+'" onclick="togglePay(\''+o.id+'\')" title="点击标记已收款"></div></td>'+
+      '<td><span class="tag '+statusClass+'">'+statusLabel+'</span></td>'+
+      '<td class="order-actions">'+actionBtn+'</td>';
+    tbody.appendChild(tr);
+  });
+  var my=myOrders();
+  document.getElementById('count-all').textContent=my.length;
+  document.getElementById('count-paid').textContent=my.filter(function(o){return o.status==='paid'}).length;
+  document.getElementById('count-pending').textContent=my.filter(function(o){return o.status==='pending'}).length;
+  document.getElementById('count-overdue').textContent=my.filter(function(o){return o.status==='overdue'}).length;
+}
+function togglePay(orderId){
+  var o=ORDERS.find(function(x){return x.id===orderId});
+  if(!o||o.salesman!==CURRENT_USER.id)return;
+  var el=document.getElementById('pc-'+orderId);
+  if(o.paid>=o.amount){
+    o.paid=0;
+    o.status=o.date<'2026-04-05'?'overdue':'pending';
+    el.classList.remove('checked');
+    showToast('已取消收款标记');
+  }else{
+    o.paid=o.amount;
+    o.status='paid';
+    el.classList.add('checked');
+    showToast('已标记为已收款');
+  }
+  renderOrders();
+  initDashboard();
+}
+function switchTab(t){
+  currentTab=t;
+  document.querySelectorAll('.tab-item').forEach(function(el){el.classList.toggle('active',el.getAttribute('data-tab')===t)});
+  renderOrders();
+}
+function searchOrders(){renderOrders()}
+function populateReminderSelect(){
+  var sel=document.getElementById('reminder-order');
+  sel.innerHTML='<option value="">— 请选择订单 —</option>';
+  myOrders().filter(function(o){return o.status!=='paid'}).forEach(function(o){
+    var opt=document.createElement('option');
+    opt.value=o.id;
+    opt.textContent=o.id+' - '+o.customer+' ('+fmt(o.amount)+')';
+    sel.appendChild(opt);
+  });
+}
+function onOrderSelect(){
+  var id=document.getElementById('reminder-order').value;
+  var o=ORDERS.find(function(x){return x.id===id});
+  var info=document.getElementById('order-info');
+  var card=document.getElementById('order-card');
+  if(!o){
+    info.style.display='block';
+    card.classList.remove('show');
+    document.getElementById('reminder-customer').value='';
+    document.getElementById('so-customer').textContent='';
+    document.getElementById('so-id').textContent='';
+    document.getElementById('so-amount').textContent='';
+    document.getElementById('pv-customer').textContent='请先选择订单';
+    document.getElementById('pv-id').textContent='';
+    document.getElementById('pv-amount').textContent='';
+    document.getElementById('pv-deadline').textContent='';
+    return;
+  }
+  info.style.display='none';
+  card.classList.add('show');
+  document.getElementById('reminder-customer').value=o.customer;
+  document.getElementById('so-customer').textContent=o.customer;
+  document.getElementById('so-id').textContent=o.id;
+  document.getElementById('so-amount').textContent=fmt(o.amount);
+  document.getElementById('pv-customer').textContent=o.customer;
+  document.getElementById('pv-id').textContent=o.id;
+  document.getElementById('pv-amount').textContent=fmt(o.amount);
+  if(o.deadline){
+    document.getElementById('reminder-deadline').value=o.deadline;
+    document.getElementById('pv-deadline').textContent=fmtDate(o.deadline);
+  }
+  previewReminder();
+}
+function previewReminder(){
+  var deadline=document.getElementById('reminder-deadline').value;
+  var msg=document.getElementById('reminder-message').value;
+  document.getElementById('pv-deadline').textContent=fmtDate(deadline);
+  var msgEl=document.getElementById('pv-msg');
+  if(msg){msgEl.style.display='block';msgEl.textContent=msg}else{msgEl.style.display='none'}
+  var today=new Date();
+  document.getElementById('pv-date').textContent=today.getFullYear()+'年'+(today.getMonth()+1)+'月'+today.getDate()+'日';
+}
+function confirmSend(){
+  var id=document.getElementById('reminder-order').value;
+  var deadline=document.getElementById('reminder-deadline').value;
+  if(!id){showToast('请先选择订单');return}
+  if(!deadline){showToast('请填写收款截止时间');return}
+  document.getElementById('modal-title').textContent='确认发送催款单';
+  document.getElementById('modal-desc').textContent='即将向客户发送催款单，确认吗？';
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function doSend(){
+  closeModal();
+  var id=document.getElementById('reminder-order').value;
+  var deadline=document.getElementById('reminder-deadline').value;
+  var msg=document.getElementById('reminder-message').value;
+  var o=ORDERS.find(function(x){return x.id===id});
+  HISTORY.unshift({orderId:id,customer:o.customer,amount:o.amount,deadline:deadline,time:new Date().toLocaleString('zh-CN'),salesman:CURRENT_USER.name});
+  document.getElementById('order-search').value='';
+  renderOrders();
+  renderHistory();
+  showToast('催款单已发送！');
+  document.getElementById('reminder-order').value='';
+  document.getElementById('reminder-deadline').value='';
+  document.getElementById('reminder-message').value='';
+  document.getElementById('order-info').style.display='block';
+  document.getElementById('order-card').classList.remove('show');
+  document.getElementById('pv-customer').textContent='请先选择订单';
+  document.getElementById('pv-id').textContent='';
+  document.getElementById('pv-amount').textContent='';
+  document.getElementById('pv-deadline').textContent='';
+  document.getElementById('pv-msg').style.display='none';
+}
+function renderHistory(){
+  var myHist=HISTORY.filter(function(h){return h.salesman===CURRENT_USER.name});
+  var el=document.getElementById('history-list');
+  if(!myHist.length){
+    el.innerHTML='<div style="text-align:center;padding:60px 20px;color:#6B7280"><div style="font-size:40px;margin-bottom:12px;opacity:0.3">H</div><div>暂无发送记录</div></div>';
+    return;
+  }
+  el.innerHTML='';
+  myHist.forEach(function(h){
+    var row=document.createElement('div');
+    row.className='history-item';
+    row.innerHTML='<div class="history-icon">R</div>'+
+      '<div class="history-info"><div class="history-title">'+h.customer+'</div>'+
+      '<div class="history-sub">'+h.orderId+' · '+fmt(h.amount)+'</div></div>'+
+      '<div class="history-time">'+h.time+'</div>';
+    el.appendChild(row);
+  });
+}
+function goRemind(id){
+  navigate('reminder');
+  document.getElementById('reminder-order').value=id;
+  onOrderSelect();
+}
+function navigate(page){
+  document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active')});
+  document.getElementById('page-'+page).classList.add('active');
+  var navMap={dashboard:0,orders:1,reminder:2,history:3};
+  var items=document.querySelectorAll('.nav-item');
+  if(items[navMap[page]])items[navMap[page]].classList.add('active');
+  var titles={dashboard:'今日看板',orders:'订单列表',reminder:'催款单',history:'发送记录'};
+  document.getElementById('current-page-title').textContent=titles[page]||'';
+  if(page==='orders')renderOrders();
+  if(page==='reminder')populateReminderSelect();
+  if(page==='history')renderHistory();
+}
+function showToast(msg){
+  var t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},3000);
+}
+init();
+</script>
+</body>
+</html>
